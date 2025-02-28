@@ -2,7 +2,6 @@
 import sys, re, operator, string
 
 #
-#python tf_06.py ../../pride-and-prejudice.txt ../../stop_words.txt
 #
 def read_file(path_to_file):
     """
@@ -75,11 +74,8 @@ def print_all(word_freqs):
 # The main function
 #
 if __name__ == "__main__":
-    if len(sys.argv) < 3:
-        print("Usage: python3 tf_06.py <text_file> <stop_words_file>")
-        sys.exit(1)
-    # Apply each function in the pipeline, passing the result to the next function
-    # Get the stop_words_file from sys.argv[2] and create the curried function
     remove_stop_words_with_file = remove_stop_words(sys.argv[2])
-    # Use the curried function in the pipeline
+
+    #python tf_06.py ../../pride-and-prejudice.txt ../../stop_words.txt
     print_all(sort(frequencies(remove_stop_words_with_file(scan(filter_chars_and_normalize(read_file(sys.argv[1]))))))[0:25])
+    

@@ -3,6 +3,7 @@ import unittest
 import os
 import tempfile
 
+
 # Import the functions from the main program
 from tf_06 import read_file, filter_chars_and_normalize, scan, remove_stop_words, frequencies, sort
 
@@ -80,4 +81,5 @@ class TestCurriedWordFrequency(unittest.TestCase):
             self.assertFalse(any(w[0] == word for w in sorted_freqs))
 
 if __name__ == "__main__":
+    # python -m unittest tf_06_test.py
     unittest.main()
