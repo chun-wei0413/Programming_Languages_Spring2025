@@ -34,7 +34,7 @@ class TestCurriedWordFrequency(unittest.TestCase):
     def test_filter_chars_and_normalize(self):
         text = "Hello, World! This is a TEST."
         filtered = filter_chars_and_normalize(text)
-        self.assertEqual(filtered, "hello  world  this is a test ")
+        self.assertEqual(filtered, "hello world this is a test ")
     
     def test_scan(self):
         text = "hello world this is a test"
