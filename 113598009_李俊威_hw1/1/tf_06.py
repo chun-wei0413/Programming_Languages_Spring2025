@@ -2,9 +2,8 @@
 import sys, re, operator, string
 
 #
-# The functions
+#python tf_06.py ../../pride-and-prejudice.txt ../../stop_words.txt
 #
-
 def read_file(path_to_file):
     """
     Takes a path to a file and returns the entire
@@ -29,14 +28,19 @@ def scan(str_data):
     """
     return str_data.split()
 
-def remove_stop_words_curry(stop_words):
+def remove_stop_words(stop_words_file):
     """ 
-    Takes a list of stop words and returns a function that
-    removes stop words from any given word list.
+    Takes a path to the stop words file and returns a function that takes
+    a list of words and returns a copy with all stop words removed.
+    This is an example of currying.
     """
-    def remove(word_list):
-        return [w for w in word_list if w not in stop_words]
-    return remove
+    def _remove_stop_words(word_list):
+        with open(stop_words_file) as f:
+            stop_words = f.read().split(',')
+        # add single-letter words
+        stop_words.extend(list(string.ascii_lowercase))
+        return [w for w in word_list if not w in stop_words]
+    return _remove_stop_words
 
 def frequencies(word_list):
     """
@@ -63,7 +67,7 @@ def print_all(word_freqs):
     """
     Takes a list of pairs where the entries are sorted by frequency and print them recursively.
     """
-    if len(word_freqs) > 0:
+    if(len(word_freqs) > 0):
         print(word_freqs[0][0], '-', word_freqs[0][1])
         print_all(word_freqs[1:])
 
@@ -71,13 +75,11 @@ def print_all(word_freqs):
 # The main function
 #
 if __name__ == "__main__":
-    # 讀取 stop words 並創建柯里化函式
-    with open('../stop_words.txt') as f:
-        stop_words = f.read().split(',')
-    stop_words.extend(list(string.ascii_lowercase))
-
-    # 取得柯里化版本的函式
-    remove_stop_words = remove_stop_words_curry(stop_words)
-
-    # 執行 pipeline
-    print_all(sort(frequencies(remove_stop_words(scan(filter_chars_and_normalize(read_file(sys.argv[1]))))))[0:25])
+    if len(sys.argv) < 3:
+        print("Usage: python3 tf_06.py <text_file> <stop_words_file>")
+        sys.exit(1)
+    # Apply each function in the pipeline, passing the result to the next function
+    # Get the stop_words_file from sys.argv[2] and create the curried function
+    remove_stop_words_with_file = remove_stop_words(sys.argv[2])
+    # Use the curried function in the pipeline
+    print_all(sort(frequencies(remove_stop_words_with_file(scan(filter_chars_and_normalize(read_file(sys.argv[1]))))))[0:25])
