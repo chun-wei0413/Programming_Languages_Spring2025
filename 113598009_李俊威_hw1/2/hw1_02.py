@@ -40,7 +40,7 @@ def scan():
 
 def remove_stop_words():
     global words
-    with open('../../stop_words.txt') as f:
+    with open('../stop_words.txt') as f:
         stop_words = f.read().split(',')
     # add single-letter words
     stop_words.extend(list(string.ascii_lowercase))
@@ -77,7 +77,7 @@ def sort():
 #
 # The main function
 #
-# python hw1_02.py ../../pride-and-prejudice.txt
+# python hw1_02.py ../pride-and-prejudice.txt
 if __name__ == '__main__':
     read_file(sys.argv[1])
     filter_chars_and_normalize()

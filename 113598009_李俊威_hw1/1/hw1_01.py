@@ -75,6 +75,6 @@ def print_all(word_freqs):
 #
 if __name__ == "__main__":
 
-    #python hw1_01.py ../../pride-and-prejudice.txt ../../stop_words.txt
+    #python hw1_01.py ../pride-and-prejudice.txt ../stop_words.txt
     print_all(sort(frequencies(remove_stop_words(sys.argv[2])(scan(filter_chars_and_normalize(read_file(sys.argv[1]))))))[0:25])
     

@@ -31,7 +31,7 @@ func scan(strData string) []string {
 // removeStopWords removes common stop words and single letters from a word list
 func removeStopWords(wordList []string) ([]string, error) {
 
-	stopWordsPath := "../../stop_words.txt"
+	stopWordsPath := "../stop_words.txt"
 	// Read stop words file
 	content, err := os.ReadFile(stopWordsPath)
 	if err != nil {
@@ -96,7 +96,7 @@ func sortFrequencies(wordFreqs map[string]int) []wordFreq {
 // }
 
 
-// go run hw1_03.go ../../pride-and-prejudice.txt
+// go run hw1_03.go ../pride-and-prejudice.txt
 func main() {
 	if len(os.Args) < 2 {
 		fmt.Println("Usage: go run hw1_03.go <file_path>")
