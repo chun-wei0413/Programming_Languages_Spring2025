@@ -1,13 +1,15 @@
-Style #6
+Style #5
 ==============================
 
 Constraints:
 
-- Larger problem decomposed in functional abstractions. Functions, according to Mathematics, are relations from inputs to outputs.
-- Larger problem solved as a pipeline of function applications
+- Larger problem decomposed in procedural abstractions
+- Larger problem solved as a sequence of commands, each corresponding to a procedure
 
 Possible names:
 
-- Candy factory
-- Functional
-- Pipeline
+- Cookbook
+- Procedural
+
+Q:
+1. 為甚麼cookbook style 跑term freq速度比pipeline慢??

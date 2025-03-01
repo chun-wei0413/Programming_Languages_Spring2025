@@ -18,7 +18,7 @@ def filter_chars_and_normalize(str_data):
     Takes a string and returns a copy with all nonalphanumeric 
     chars replaced by white space
     """
-    pattern = re.compile('[\W_]+')
+    pattern = re.compile(r'[\W_]+')
     return pattern.sub(' ', str_data).lower()
 
 def scan(str_data):
@@ -28,16 +28,18 @@ def scan(str_data):
     """
     return str_data.split()
 
-def remove_stop_words(word_list):
+def remove_stop_words(stop_words_file):
     """ 
-    Takes a list of words and returns a copy with all stop 
-    words removed 
+    Takes a path to the stop words file and returns a function that takes
+    a list of words and returns a copy with all stop words removed.
     """
-    with open('../stop_words.txt') as f:
-        stop_words = f.read().split(',')
-    # add single-letter words
-    stop_words.extend(list(string.ascii_lowercase))
-    return [w for w in word_list if not w in stop_words]
+    def _remove_stop_words(word_list):
+        with open(stop_words_file) as f:
+            stop_words = f.read().split(',')
+        # add single-letter words
+        stop_words.extend(list(string.ascii_lowercase))
+        return [w for w in word_list if not w in stop_words]
+    return _remove_stop_words
 
 def frequencies(word_list):
     """
@@ -72,5 +74,7 @@ def print_all(word_freqs):
 # The main function
 #
 if __name__ == "__main__":
-    print_all(sort(frequencies(remove_stop_words(scan(filter_chars_and_normalize(read_file(sys.argv[1]))))))[0:25])
 
+    #python hw1_01.py ../../pride-and-prejudice.txt ../../stop_words.txt
+    print_all(sort(frequencies(remove_stop_words(sys.argv[2])(scan(filter_chars_and_normalize(read_file(sys.argv[1]))))))[0:25])
+    

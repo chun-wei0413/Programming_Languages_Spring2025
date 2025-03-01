@@ -5,7 +5,7 @@ import tempfile
 
 
 # Import the functions from the main program
-from tf_06 import read_file, filter_chars_and_normalize, scan, remove_stop_words, frequencies, sort
+from hw1_01 import read_file, filter_chars_and_normalize, scan, remove_stop_words, frequencies, sort
 
 class TestCurriedWordFrequency(unittest.TestCase):
     
@@ -35,12 +35,12 @@ class TestCurriedWordFrequency(unittest.TestCase):
     def test_filter_chars_and_normalize(self):
         text = "Hello, World! This is a TEST."
         filtered = filter_chars_and_normalize(text)
-        self.assertEqual(filtered, "hello world this is a test ")
+        self.assertEqual("hello world this is a test ", filtered)
     
     def test_scan(self):
         text = "hello world this is a test"
         words = scan(text)
-        self.assertEqual(words, ["hello", "world", "this", "is", "a", "test"])
+        self.assertEqual(["hello", "world", "this", "is", "a", "test"], words)
     
     def test_remove_stop_words_curried(self):
         # Test the curried function
@@ -50,17 +50,17 @@ class TestCurriedWordFrequency(unittest.TestCase):
         
         # Should remove 'this', 'is', 'a', and single letters
         expected = ["test", "file", "with", "test", "words"]
-        self.assertEqual(filtered_words, expected)
+        self.assertEqual(expected, filtered_words)
     
     def test_frequencies(self):
         words = ["test", "file", "test", "words", "test"]
         freqs = frequencies(words)
-        self.assertEqual(freqs, {"test": 3, "file": 1, "words": 1})
+        self.assertEqual({"test": 3, "file": 1, "words": 1}, freqs)
     
     def test_sort(self):
         freqs = {"test": 3, "file": 1, "words": 1}
         sorted_freqs = sort(freqs)
-        self.assertEqual(sorted_freqs, [("test", 3), ("file", 1), ("words", 1)])
+        self.assertEqual([("test", 3), ("file", 1), ("words", 1)], sorted_freqs)
     
     def test_full_pipeline(self):
         # Test the full pipeline with the curried function
@@ -81,5 +81,5 @@ class TestCurriedWordFrequency(unittest.TestCase):
             self.assertFalse(any(w[0] == word for w in sorted_freqs))
 
 if __name__ == "__main__":
-    # python -m unittest tf_06_test.py
+    # python -m unittest hw1_01_test.py
     unittest.main()
