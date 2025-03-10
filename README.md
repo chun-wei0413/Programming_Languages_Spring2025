@@ -46,10 +46,11 @@ We will repeat the three-parts for a number of styles under the following progra
     - Map Reduce
 
 ## Reference Books
-- Donovan, Alan AA, and Brian W. Kernighan. The Go programming language. Addison-Wesley Professional, 2015.
+- Donovan, Alan AA, and Brian W. Kernighan. The Go programming language. Addison-Wesley Professional, 2015. [Online resource](https://www.gopl.io)
 - Cristina Videira Lopes, Exercises in Programming Style, First Edition, Chapman and Hall/CRC, 2014.
 - Michael L. Scott, Programming Language Pragmatics, Fourth Edition, Morgan Kaufmann (Elsevier), 2016.
 
+## Lectures
 **Week 1**
 
 - Program: Cookbook
@@ -78,3 +79,47 @@ In the example program, the name of the file containing the list of stop words i
 2. (30%) Show with unit testing for the functions in the Cookbook style that are **not idempotent** and describe the reason in the comment.
 
 3. (40%) Rewrite the Pipeline style in Go, including unit tests.
+
+**Week 3**
+
+1. Names, bindings, lifetimes, and scopes
+    - Chapter 3, Pragmatics (p1-35, pptx.)
+    - Chapter 2, Go
+        - *keywords* (language design time)
+        - *predeclared names* (language implementation time)
+            - constants: e.g., true, false, nil
+            - types: e.g., int, int64
+            - functions: e.g., len, new, close 
+        - name declarations (program writing time)
+            - var, const, type, func
+            - package-level declarations
+            - local declarations
+        - static allocation, stack allocation, and heap allocation
+        - lifetime management and garbage collection 
+            - a local variable escapes from a function
+                - C/C++ vs. Go
+        - stack vs. heap allocation depending on reachability to entities, not the use of "new"
+            - curried three-arg addition, closure, capture and escape
+2. Exercise 11, Things: Style
+3. Exercise 12, Letterbox: Style
+
+**Week 4**
+
+- object closure
+    - C++ functor and STL
+        - overloading call operator
+- object-oriented programming in Go in shapesapp
+    - module, directory structure, and packages
+    - type, type struct, type interface
+    - Encapsulation
+        - Cap for public
+        - Lowercase for private
+    - Factory functions NewTypeName for constructing object
+    - Methods: function with receivers
+        - can be defined for any **named type** other than a pointer or an interface
+        - value receiver
+        - pointer receiver
+
+== HW2, deadline: 3/17(Mon.) 23:59
+1. 10.1 with Go. You must include unit tests. (without the info method)
+    - Link: https://github.com/crista/exercises-in-programming-style/tree/master/11-things
