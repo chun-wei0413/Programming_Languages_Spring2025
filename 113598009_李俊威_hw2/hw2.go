@@ -69,7 +69,6 @@ func (s *StopWordManager) IsStopWord(word string) bool {
 	return exists
 }
 
-// WordFrequencyManager keeps the word frequency data
 type WordFrequencyManager struct {
 	wordFreqs map[string]int
 }

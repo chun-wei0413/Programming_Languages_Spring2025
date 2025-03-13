@@ -7,7 +7,6 @@ import (
 	"testing"
 )
 
-// 模擬檔案內容的輔助函數
 func setupTestFile(t *testing.T, content string) string {
 	f, err := os.CreateTemp("", "testfile")
 	if err != nil {
@@ -22,7 +21,6 @@ func setupTestFile(t *testing.T, content string) string {
 	return f.Name()
 }
 
-// 清理臨時檔案
 func cleanupTestFile(t *testing.T, path string) {
 	err := os.Remove(path)
 	if err != nil {
@@ -30,7 +28,6 @@ func cleanupTestFile(t *testing.T, path string) {
 	}
 }
 
-// 測試 DataStorageManager
 func TestDataStorageManager_Words(t *testing.T) {
 	// 測試用檔案內容
 	content := "The cat, and the dog! 123 Cat HERE"
@@ -48,12 +45,11 @@ func TestDataStorageManager_Words(t *testing.T) {
 
 // 測試 StopWordManager
 func TestStopWordManager_IsStopWord(t *testing.T) {
-	// 模擬 stop_words.txt 檔案
+
 	stopWordsContent := "the, and, is"
 	stopFile := setupTestFile(t, stopWordsContent)
 	defer cleanupTestFile(t, stopFile)
 
-	// 創建 StopWordManager，並模擬檔案內容
 	swm := &StopWordManager{stopWords: make(map[string]struct{})}
 	content, _ := os.ReadFile(stopFile)
 	words := strings.Split(string(content), ",")
@@ -63,7 +59,7 @@ func TestStopWordManager_IsStopWord(t *testing.T) {
 			swm.stopWords[trimmedWord] = struct{}{}
 		}
 	}
-	// 添加單字母詞
+
 	for c := 'a'; c <= 'z'; c++ {
 		swm.stopWords[string(c)] = struct{}{}
 	}
@@ -72,12 +68,12 @@ func TestStopWordManager_IsStopWord(t *testing.T) {
 		word     string
 		expected bool
 	}{
-		{"the", true},    // 在停用詞列表中
-		{"and", true},    // 在停用詞列表中
-		{"is", true},     // 在停用詞列表中
-		{"a", true},      // 單字母停用詞
-		{"cat", false},   // 不在停用詞列表中
-		{"dog", false},   // 不在停用詞列表中
+		{"the", true},    
+		{"and", true},    
+		{"is", true},     
+		{"a", true},      
+		{"cat", false},   
+		{"dog", false},   
 	}
 
 	for _, test := range tests {
@@ -104,7 +100,6 @@ func TestWordFrequencyManager_IncrementCountAndSorted(t *testing.T) {
 		t.Errorf("Expected frequency of 'dog' to be 1, but got %d", wfm.wordFreqs["dog"])
 	}
 
-	// 測試 Sorted
 	sorted := wfm.Sorted()
 	expected := [][2]string{
 		{"cat", "2"},
@@ -117,17 +112,14 @@ func TestWordFrequencyManager_IncrementCountAndSorted(t *testing.T) {
 
 // 測試 WordFrequencyController
 func TestWordFrequencyController_Run(t *testing.T) {
-	// 模擬輸入檔案
 	content := "The cat and the dog. Cat is here!"
 	filePath := setupTestFile(t, content)
 	defer cleanupTestFile(t, filePath)
 
-	// 模擬 stop_words.txt
 	stopWordsContent := "the, and, is"
 	stopFile := setupTestFile(t, stopWordsContent)
 	defer cleanupTestFile(t, stopFile)
 
-	// 創建 StopWordManager 並手動填充停用詞
 	swm := &StopWordManager{stopWords: make(map[string]struct{})}
 	stopContent, _ := os.ReadFile(stopFile)
 	words := strings.Split(string(stopContent), ",")
@@ -137,16 +129,15 @@ func TestWordFrequencyController_Run(t *testing.T) {
 			swm.stopWords[trimmedWord] = struct{}{}
 		}
 	}
+
 	for c := 'a'; c <= 'z'; c++ {
 		swm.stopWords[string(c)] = struct{}{}
 	}
 
-	// 重定向輸出以檢查結果
 	originalStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	// 手動創建 controller，避免依賴 NewStopWordManager
 	controller := &WordFrequencyController{
 		storageManager:  NewDataStorageManager(filePath),
 		stopWordManager: swm,
@@ -157,7 +148,6 @@ func TestWordFrequencyController_Run(t *testing.T) {
 	w.Close()
 	os.Stdout = originalStdout
 
-	// 讀取輸出
 	var output strings.Builder
 	buf := make([]byte, 1024)
 	for {
@@ -177,36 +167,29 @@ func TestWordFrequencyController_Run(t *testing.T) {
 	}
 }
 
-// 測試主程式流程（模擬 main）
 func TestMainFlow(t *testing.T) {
-	// 模擬命令列參數
 	originalArgs := os.Args
 	os.Args = []string{"program", "testfile.txt"}
 	defer func() { os.Args = originalArgs }()
 
-	// 模擬輸入檔案
 	content := "The cat and the dog."
 	filePath := setupTestFile(t, content)
 	defer cleanupTestFile(t, filePath)
 	os.Args[1] = filePath
 
-	// 模擬 stop_words.txt
 	stopWordsContent := "the, and"
 	stopFile := setupTestFile(t, stopWordsContent)
 	defer cleanupTestFile(t, stopFile)
 
-	// 重定向輸出
 	originalStdout := os.Stdout
 	r, w, _ := os.Pipe()
 	os.Stdout = w
 
-	// 執行 main
 	main()
 
 	w.Close()
 	os.Stdout = originalStdout
 
-	// 讀取輸出
 	var output strings.Builder
 	buf := make([]byte, 1024)
 	for {
