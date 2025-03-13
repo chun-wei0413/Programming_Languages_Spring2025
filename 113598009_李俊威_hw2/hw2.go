@@ -9,40 +9,25 @@ import (
 	"strings"
 )
 
-// FileHandler encapsulates file operations
-type FileHandler struct {
-	path string
+// DataStorageManager models the contents of the file
+type DataStorageManager struct {
+	data string
 }
 
-func NewFileHandler(path string) *FileHandler {
-	return &FileHandler{path: path}
-}
-
-func (f *FileHandler) ReadContent() (string, error) {
-	content, err := os.ReadFile(f.path)
+func NewDataStorageManager(path string) *DataStorageManager {
+	content, err := os.ReadFile(path)
 	if err != nil {
-		return "", err
+		fmt.Println("Error reading file:", err)
+		os.Exit(1)
 	}
-	return string(content), nil
+	// Replace non-word characters with space and convert to lowercase
+	pattern := regexp.MustCompile(`[\W_]+`)
+	data := pattern.ReplaceAllString(string(content), " ")
+	return &DataStorageManager{data: strings.ToLower(data)}
 }
 
-// WordProcessor encapsulates word processing operations
-type WordProcessor struct{}
-
-func NewWordProcessor() *WordProcessor {
-	return &WordProcessor{}
-}
-
-func (w *WordProcessor) Normalize(text string) string {
-	return strings.ToLower(text)
-}
-
-func (w *WordProcessor) SplitWords(text string) []string {
-	// Use regexp to keep only letters
-	re := regexp.MustCompile(`[^a-zA-Z]+`)
-	replaced := re.ReplaceAllString(text, " ")
-	words := strings.Fields(replaced)
-	// Filter out empty or invalid words
+func (d *DataStorageManager) Words() []string {
+	words := strings.Fields(d.data)
 	var validWords []string
 	for _, word := range words {
 		if len(word) > 0 && regexp.MustCompile(`^[a-z]+$`).MatchString(word) {
@@ -52,15 +37,14 @@ func (w *WordProcessor) SplitWords(text string) []string {
 	return validWords
 }
 
-// StopWordManager encapsulates stop word filtering
+// StopWordManager models the stop word filter
 type StopWordManager struct {
 	stopWords map[string]struct{}
 }
 
 func NewStopWordManager() *StopWordManager {
 	sw := &StopWordManager{stopWords: make(map[string]struct{})}
-
-	// Load stop words from file in current directory
+	// Load stop words from file
 	content, err := os.ReadFile("./stop_words.txt")
 	if err == nil {
 		words := strings.Split(string(content), ",")
@@ -73,12 +57,10 @@ func NewStopWordManager() *StopWordManager {
 	} else {
 		fmt.Println("Warning: Could not load stop_words.txt:", err)
 	}
-
-	// Add single-letter words and common titles
+	// Add single-letter words
 	for c := 'a'; c <= 'z'; c++ {
 		sw.stopWords[string(c)] = struct{}{}
 	}
-	
 	return sw
 }
 
@@ -87,83 +69,67 @@ func (s *StopWordManager) IsStopWord(word string) bool {
 	return exists
 }
 
-// FrequencyCounter encapsulates frequency counting operations
-type FrequencyCounter struct {
-	counts map[string]int
+// WordFrequencyManager keeps the word frequency data
+type WordFrequencyManager struct {
+	wordFreqs map[string]int
 }
 
-func NewFrequencyCounter() *FrequencyCounter {
-	return &FrequencyCounter{counts: make(map[string]int)}
+func NewWordFrequencyManager() *WordFrequencyManager {
+	return &WordFrequencyManager{wordFreqs: make(map[string]int)}
 }
 
-func (f *FrequencyCounter) CountWords(words []string, stopManager *StopWordManager) {
-	for _, word := range words {
-		if len(word) > 1 && !stopManager.IsStopWord(word) {
-			f.counts[word]++
-		}
+func (w *WordFrequencyManager) IncrementCount(word string) {
+	if _, exists := w.wordFreqs[word]; exists {
+		w.wordFreqs[word]++
+	} else {
+		w.wordFreqs[word] = 1
 	}
 }
 
-func (f *FrequencyCounter) GetTopN(n int) [][2]string {
-	// Convert map to slice of pairs
-	pairs := make([][2]string, 0, len(f.counts))
-	for word, count := range f.counts {
-		pairs = append(pairs, [2]string{word, strconv.Itoa(count)})
+func (w *WordFrequencyManager) Sorted() [][2]string {
+	pairs := make([][2]string, 0, len(w.wordFreqs))
+	for word, count := range w.wordFreqs {
+		pairs = append(pairs, [2]string{word, fmt.Sprintf("%d", count)})
 	}
-
-	// Sort by count (descending) and then by word (ascending)
 	sort.Slice(pairs, func(i, j int) bool {
 		countI, _ := strconv.Atoi(pairs[i][1])
 		countJ, _ := strconv.Atoi(pairs[j][1])
 		if countI != countJ {
-			return countI > countJ // Descending by count
+			return countI > countJ
 		}
-		return pairs[i][0] < pairs[j][0] // Ascending by word if counts are equal
+		return pairs[i][0] < pairs[j][0]
 	})
-
-	// Return top N or all if less than N
-	if len(pairs) < n {
-		return pairs
-	}
-	return pairs[:n]
+	return pairs
 }
 
 // WordFrequencyController orchestrates the word frequency counting process
 type WordFrequencyController struct {
-	fileHandler   *FileHandler
-	wordProcessor *WordProcessor
-	stopManager   *StopWordManager
-	freqCounter   *FrequencyCounter
+	storageManager   *DataStorageManager
+	stopWordManager  *StopWordManager
+	wordFreqManager  *WordFrequencyManager
 }
 
 func NewWordFrequencyController(path string) *WordFrequencyController {
 	return &WordFrequencyController{
-		fileHandler:   NewFileHandler(path),
-		wordProcessor: NewWordProcessor(),
-		stopManager:   NewStopWordManager(),
-		freqCounter:   NewFrequencyCounter(),
+		storageManager:  NewDataStorageManager(path),
+		stopWordManager: NewStopWordManager(),
+		wordFreqManager: NewWordFrequencyManager(),
 	}
 }
 
-func (w *WordFrequencyController) Run() error {
-	// Read file content
-	content, err := w.fileHandler.ReadContent()
-	if err != nil {
-		return fmt.Errorf("error reading file: %v", err)
+func (w *WordFrequencyController) Run() {
+	for _, word := range w.storageManager.Words() {
+		if !w.stopWordManager.IsStopWord(word) {
+			w.wordFreqManager.IncrementCount(word)
+		}
 	}
-
-	// Process words
-	normalized := w.wordProcessor.Normalize(content)
-	words := w.wordProcessor.SplitWords(normalized)
-	w.freqCounter.CountWords(words, w.stopManager)
-
-	// Get and print top 25
-	top25 := w.freqCounter.GetTopN(25)
-	for _, pair := range top25 {
+	wordFreqs := w.wordFreqManager.Sorted()
+	for i, pair := range wordFreqs {
+		if i >= 25 {
+			break
+		}
 		fmt.Printf("%s - %s\n", pair[0], pair[1])
 	}
-
-	return nil
 }
 
 func main() {
@@ -171,10 +137,6 @@ func main() {
 		fmt.Println("Usage: program <filename>")
 		os.Exit(1)
 	}
-
 	controller := NewWordFrequencyController(os.Args[1])
-	if err := controller.Run(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	controller.Run()
 }
