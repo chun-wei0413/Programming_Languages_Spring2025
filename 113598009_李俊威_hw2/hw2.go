@@ -132,6 +132,8 @@ func (w *WordFrequencyController) Run() {
 }
 
 func main() {
+	//請使用以下指令 by Frank
+	//go run hw2.go ./pride-and-prejudice.txt
 	if len(os.Args) != 2 {
 		fmt.Println("Usage: program <filename>")
 		os.Exit(1)

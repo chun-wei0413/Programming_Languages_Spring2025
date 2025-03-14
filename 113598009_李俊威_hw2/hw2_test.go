@@ -29,7 +29,7 @@ func cleanupTestFile(t *testing.T, path string) {
 }
 
 func TestDataStorageManager_Words(t *testing.T) {
-	// 測試用檔案內容
+
 	content := "The cat, and the dog! 123 Cat HERE"
 	filePath := setupTestFile(t, content)
 	defer cleanupTestFile(t, filePath)
@@ -38,14 +38,13 @@ func TestDataStorageManager_Words(t *testing.T) {
 	words := dsm.Words()
 
 	expected := []string{"the", "cat", "and", "the", "dog", "cat", "here"}
-	if !reflect.DeepEqual(words, expected) {
+	if !reflect.DeepEqual(expected, words) {
 		t.Errorf("Expected words %v, but got %v", expected, words)
 	}
 }
 
-// 測試 StopWordManager
 func TestStopWordManager_IsStopWord(t *testing.T) {
-
+	//為了不要耦合stop_words.txt我寫了一個stopWordsContent
 	stopWordsContent := "the, and, is"
 	stopFile := setupTestFile(t, stopWordsContent)
 	defer cleanupTestFile(t, stopFile)
@@ -78,17 +77,15 @@ func TestStopWordManager_IsStopWord(t *testing.T) {
 
 	for _, test := range tests {
 		result := swm.IsStopWord(test.word)
-		if result != test.expected {
+		if test.expected != result {
 			t.Errorf("For word %q, expected %v, but got %v", test.word, test.expected, result)
 		}
 	}
 }
 
-// 測試 WordFrequencyManager
-func TestWordFrequencyManager_IncrementCountAndSorted(t *testing.T) {
+func TestWordFrequencyManager_IncrementCount(t *testing.T) {
 	wfm := NewWordFrequencyManager()
 
-	// 測試 IncrementCount
 	wfm.IncrementCount("cat")
 	wfm.IncrementCount("dog")
 	wfm.IncrementCount("cat")
@@ -99,18 +96,27 @@ func TestWordFrequencyManager_IncrementCountAndSorted(t *testing.T) {
 	if wfm.wordFreqs["dog"] != 1 {
 		t.Errorf("Expected frequency of 'dog' to be 1, but got %d", wfm.wordFreqs["dog"])
 	}
+}
+
+func TestWordFrequencyManager_Sorted(t *testing.T) {
+	wfm := NewWordFrequencyManager()
+
+	// 先增加一些詞頻
+	wfm.IncrementCount("pig")
+	wfm.IncrementCount("bird")
+	wfm.IncrementCount("pig")
 
 	sorted := wfm.Sorted()
 	expected := [][2]string{
-		{"cat", "2"},
-		{"dog", "1"},
+		{"pig", "2"},
+		{"bird", "1"},
 	}
-	if !reflect.DeepEqual(sorted, expected) {
+
+	if !reflect.DeepEqual(expected, sorted) {
 		t.Errorf("Expected sorted result %v, but got %v", expected, sorted)
 	}
 }
 
-// 測試 WordFrequencyController
 func TestWordFrequencyController_Run(t *testing.T) {
 	content := "The cat and the dog. Cat is here!"
 	filePath := setupTestFile(t, content)
@@ -162,7 +168,7 @@ func TestWordFrequencyController_Run(t *testing.T) {
 	r.Close()
 
 	expectedOutput := "cat - 2\ndog - 1\nhere - 1\n"
-	if output.String() != expectedOutput {
+	if expectedOutput != output.String() {
 		t.Errorf("Expected output %q, but got %q", expectedOutput, output.String())
 	}
 }
@@ -204,7 +210,7 @@ func TestMainFlow(t *testing.T) {
 	r.Close()
 
 	expectedOutput := "cat - 1\ndog - 1\n"
-	if output.String() != expectedOutput {
+	if expectedOutput != output.String() {
 		t.Errorf("Expected output %q, but got %q", expectedOutput, output.String())
 	}
 }
