@@ -7,7 +7,9 @@ import (
 
 func TestBaseGeneratorWithTextDocument(t *testing.T) {
 	textDoc := documentgenerator.NewTextDocument()
-	base := &documentgenerator.BaseGenerator{Doc: textDoc}
+	// 這裡inject textDoc到BaseGenerator是為了測試base的Generate()
+	base := &documentgenerator.BaseGenerator{textDoc}
+
 	result := base.Generate()
 	expected := "Saving text document: Formatted Text: This is the raw text data."
 	if result != expected {
@@ -17,7 +19,9 @@ func TestBaseGeneratorWithTextDocument(t *testing.T) {
 
 func TestBaseGeneratorWithHTMLDocument(t *testing.T) {
 	htmlDoc := documentgenerator.NewHTMLDocument()
-	base := &documentgenerator.BaseGenerator{Doc: htmlDoc}
+	// 這裡同理
+	base := &documentgenerator.BaseGenerator{htmlDoc}
+
 	result := base.Generate()
 	expected := "Saving HTML document: <div><html><body>This is raw HTML data.</body></html></div>"
 	if result != expected {
@@ -26,11 +30,12 @@ func TestBaseGeneratorWithHTMLDocument(t *testing.T) {
 }
 
 func TestBaseGeneratorNilDoc(t *testing.T) {
-	base := &documentgenerator.BaseGenerator{Doc: nil}
-	defer func() {
-		if r := recover(); r == nil {
-			t.Errorf("Expected panic when doc is nil, but no panic occurred")
-		}
-	}()
-	base.Generate() // 應該觸發 panic
+	base := &documentgenerator.BaseGenerator{nil}
+	//原本call nil的Generate會觸發panic但我在BaseGenerator的Generate裡面加了nil判斷
+	//所以會return錯誤訊息
+	result := base.Generate()
+	expected := "Error: no document generator provided"
+	if result != expected {
+		t.Errorf("Expected %q, got %q", expected, result)
+	}
 }

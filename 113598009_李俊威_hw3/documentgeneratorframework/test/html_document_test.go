@@ -46,6 +46,7 @@ func TestHTMLDocumentSave(t *testing.T) {
 		input    string
 		expected string
 	}{
+		//這裡我只測Save的功能，所以沒有FormatContent的包裝作為參數
 		{"formatted content", "Saving HTML document: formatted content"},
 		{"", "Saving HTML document: "},
 		{"<div>test</div>", "Saving HTML document: <div>test</div>"},

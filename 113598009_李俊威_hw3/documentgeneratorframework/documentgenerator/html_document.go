@@ -6,7 +6,7 @@ type HTMLDocument struct {
 
 func NewHTMLDocument() *HTMLDocument {
 	doc := &HTMLDocument{}
-	doc.Doc = doc //field promotion, promote the doc field, then it can be used in BaseGenerator
+	doc.Doc = doc //field promotion, promote the doc field, then it can be used in BaseGenerator. :D
 	return doc
 }
 
